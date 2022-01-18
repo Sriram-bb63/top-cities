@@ -11,7 +11,7 @@ table1 = soup1.find("table", attrs={"class": "wikitable sortable"})
 table_body = table1.find("tbody")
 rows = table_body.find_all("tr")
 coordinates = []
-for row in rows[1:11]:
+for row in rows[1:51]:
     a_tags = row.find_all("a")[0]
     city = a_tags.contents[0]
     google_searc_url = google_base_url + city + "+lat" + "+long"
