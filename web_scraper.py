@@ -1,29 +1,35 @@
 from bs4 import BeautifulSoup
-from nbformat import write
 import requests
 import csv
 
 wiki_url = "https://en.wikipedia.org/wiki/List_of_cities_in_India_by_population"
 google_base_url = "https://www.google.com/search?q="
-r1 = requests.get(url=wiki_url)
-soup1 = BeautifulSoup(r1.content, "html5lib")
-table1 = soup1.find("table", attrs={"class": "wikitable sortable"})
-table_body = table1.find("tbody")
-rows = table_body.find_all("tr")
+
+wiki_request = requests.get(url=wiki_url)
+wiki_soup = BeautifulSoup(wiki_request.content, "html5lib")
+wiki_table = wiki_soup.find("table", attrs={"class": "wikitable sortable"})
+wiki_table_body = wiki_table.find("tbody")
+wiki_table_rows = wiki_table_body.find_all("tr")
+
 coordinates = []
-for row in rows[1:51]:
+
+number_of_cities = int(input("Enter top n cities to plot: "))
+
+for row in wiki_table_rows[1:number_of_cities+1]:
     a_tags = row.find_all("a")[0]
     city = a_tags.contents[0]
+
     google_searc_url = google_base_url + city + "+lat" + "+long"
-    r2 = requests.get(url=google_searc_url)
-    soup2 = BeautifulSoup(r2.content, "html5lib")
-    table2 = soup2.findAll("div", attrs={"class": "BNeawe iBp4i AP7Wnd"})
-    tag = table2[-1]
-    lst = tag.contents
-    s = lst[0]
-    s = s.split()
-    lat = s[0][:6]
-    lon = s[2][:6]
+    google_request = requests.get(url=google_searc_url)
+    google_soup = BeautifulSoup(google_request.content, "html5lib")
+    google_table = google_soup.findAll("div", attrs={"class": "BNeawe iBp4i AP7Wnd"})
+    tag = google_table[-1]
+    city_coordinate = tag.contents
+    city_coordinate = city_coordinate[0]
+    city_coordinate = city_coordinate.split()
+    lat = city_coordinate[0][:6]
+    lon = city_coordinate[2][:6]
+    
     coordinates.append(
         {
             "city": city,
@@ -32,7 +38,6 @@ for row in rows[1:51]:
         }
     )
 
-print(coordinates)
 
 field_names = ["city", "lat", "lon"]
 
